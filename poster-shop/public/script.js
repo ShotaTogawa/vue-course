@@ -3,15 +3,47 @@ new Vue({
 	data: {
 		total: 0,
 		products: [
-			{ id: 1, title: "product1" },
-			{ id: 2, title: "product2" },
-			{ id: 3, title: "product3" },
+			{ id: 1, price: 9.99, title: "product1" },
+			{ id: 2, price: 8.99, title: "product2" },
+			{ id: 3, price: 7.99, title: "product3" },
 		],
 		cart: [],
 	},
 	methods: {
 		addToCart: function (product) {
-			console.log(product.id);
+			this.total += product.price;
+			let found = false;
+			for (let i = 0; i < this.cart.length; i++) {
+				if (this.cart[i].id === product.id) {
+					this.cart[i].qty++;
+					found = true;
+				}
+			}
+			if (!found) {
+				this.cart.push({
+					id: product.id,
+					title: product.title,
+					price: product.price,
+					qty: 1,
+				});
+			}
+		},
+		inc: function (item) {
+			item.qty++;
+			this.total += item.price;
+		},
+		dec: function (item) {
+			item.qty--;
+			this.total -= item.price;
+			if (item.qty <= 0) {
+				let i = this.cart.indexOf(item);
+				this.cart.splice(i, 1);
+			}
+		},
+	},
+	filters: {
+		currency: function (price) {
+			return "$".concat(price.toFixed(2));
 		},
 	},
 });
