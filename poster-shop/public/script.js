@@ -1,14 +1,16 @@
+let LOAD_NUM = 4;
+let watcher;
+
 new Vue({
 	el: "#app",
 	data: {
 		total: 0,
-		products: [
-			{ id: 1, price: 9.99, title: "product1" },
-			{ id: 2, price: 8.99, title: "product2" },
-			{ id: 3, price: 7.99, title: "product3" },
-		],
+		products: [],
 		cart: [],
-		search: "",
+		search: "cat",
+		lastSearch: "",
+		loading: false,
+		results: [],
 	},
 	methods: {
 		addToCart: function (product) {
@@ -42,15 +44,47 @@ new Vue({
 			}
 		},
 		onSubmit: function () {
+			this.products = [];
+			this.results = [];
+			this.loading = true;
 			let path = "/search?q=".concat(this.search);
 			this.$http.get(path).then(function (response) {
-				console.log(response);
+				this.results = response.body;
+				this.products = response.body.slice(0, LOAD_NUM);
+				this.lastSearch = this.search;
+				this.appendReuslts();
+				this.loading = false;
 			});
+		},
+		appendReuslts: function () {
+			console.log(this.products);
+			if (this.products.length < this.results.length) {
+				let toAppend = this.results.slice(
+					this.products.length,
+					LOAD_NUM + this.products.length
+				);
+				this.products = this.products.concat(toAppend);
+			}
 		},
 	},
 	filters: {
 		currency: function (price) {
 			return "$".concat(price.toFixed(2));
 		},
+	},
+	created: function () {
+		this.onSubmit();
+	},
+	updated: function () {
+		const sensor = document.querySelector("#product-list-bottom");
+		watcher = scrollMonitor.create(sensor);
+
+		watcher.enterViewport(this.appendReuslts);
+	},
+	beforeUpdate: function () {
+		if (watcher) {
+			watcher.destroy();
+			watcher = null;
+		}
 	},
 });
