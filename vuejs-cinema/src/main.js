@@ -13,6 +13,15 @@ Object.defineProperty(Vue.prototype, '$moment', {
   },
 });
 
+import { checkFilter } from './util/bus';
+
+const bus = new Vue();
+Object.defineProperty(Vue.prototype, '$bus', {
+  get() {
+    return this.$root.bus;
+  },
+});
+
 new Vue({
   el: '#app',
   data: {
@@ -21,18 +30,7 @@ new Vue({
     movies: [],
     moment,
     day: moment(),
-  },
-  methods: {
-    checkFilter(category, title, checked) {
-      if (checked) {
-        this[category].push(title);
-      } else {
-        let index = this[category].indexOf(title);
-        if (index > -1) {
-          this[category].splice(index, 1);
-        }
-      }
-    },
+    bus,
   },
   components: {
     MovieList,
@@ -42,5 +40,6 @@ new Vue({
     this.$http.get('/api').then((response) => {
       this.movies = response.data;
     });
+    this.$bus.$on('check-filter', checkFilter.bind(this));
   },
 });
