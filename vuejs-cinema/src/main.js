@@ -27,6 +27,9 @@ Vue.use(VueRouter);
 
 const router = new VueRouter({ routes });
 
+import Tooltip from './util/tooltip';
+Vue.use(Tooltip);
+
 new Vue({
   el: '#app',
   data: {
