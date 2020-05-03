@@ -11,7 +11,13 @@ app.use('/public', express.static(path.join(__dirname, 'public')));
 app.get('/', (req, res) => {
   let template = fs.readFileSync(path.resolve('./index.html'), 'utf-8');
   res.send(template);
+});
 
+let events = [];
+
+app.use(require('body-parser').json());
+app.post('/add_event', (req, res) => {
+  events.push(req.body);
 });
 
 const server = http.createServer(app);
@@ -25,6 +31,6 @@ if (process.env.NODE_ENV === 'development') {
 server.listen(process.env.PORT, function () {
   console.log(`Example app listening on port ${process.env.PORT}!`);
   if (process.env.NODE_ENV === 'development') {
-    require("opn")(`http://localhost:${process.env.PORT}`);
+    require('opn')(`http://localhost:${process.env.PORT}`);
   }
 });
